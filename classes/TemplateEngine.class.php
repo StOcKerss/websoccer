@@ -100,6 +100,7 @@ class TemplateEngine {
 		if (DEBUG) {
 			$twigConfig['auto_reload'] = TRUE;
 			$twigConfig['strict_variables'] = TRUE;
+            $twigConfig['debug'] = TRUE;
 		}
 		
 		// init

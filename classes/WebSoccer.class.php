@@ -124,6 +124,9 @@ class WebSoccer {
 	public function getTemplateEngine($i18n, ViewHandler $viewHandler = null) {
 		if ($this->_templateEngine == NULL) {
 			$this->_templateEngine = new TemplateEngine($this, $i18n, $viewHandler);
+            if(DEBUG) {
+                $this->_templateEngine->getEnvironment()->addExtension(new Twig_Extension_Debug());
+            }
 		}
 		
 		return $this->_templateEngine;
@@ -132,10 +135,21 @@ class WebSoccer {
 	/**
 	 * 
 	 * @param string $name request parameter name
-	 * @return string|NULL trimmed request parameter value or NULL if no value provided.
+	 * @return array|string|NULL trimmed request parameter value or NULL if no value provided.
 	 */
 	public function getRequestParameter($name) {
 		if (isset($_REQUEST[$name])) {
+            if(is_array($_REQUEST[$name])){
+                $arr=[];
+                foreach ($_REQUEST[$name] as $value){
+                    $val = trim($value);
+                    if (strlen($val)) {
+                        $arr[] = $val;
+                    }
+                }
+                if(count($arr))
+                    return $arr;
+            }
 			$value = trim($_REQUEST[$name]);
 			if (strlen($value)) {
 				return $value;
