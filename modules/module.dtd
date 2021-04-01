@@ -113,7 +113,7 @@
 
 <!ELEMENT param EMPTY>
 <!ATTLIST param id CDATA #REQUIRED>
-<!ATTLIST param type (text|number|email|boolean|password|date|url|percent) #REQUIRED>
+<!ATTLIST param type (text|number|email|boolean|password|date|url|percent|checkbox|array) #REQUIRED>
 <!ATTLIST param required (true|false) "false">
 <!ATTLIST param min CDATA #IMPLIED>
 <!ATTLIST param max CDATA #IMPLIED>

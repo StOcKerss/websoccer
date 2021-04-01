@@ -92,4 +92,6 @@
 	
 	<message id="formation_submitted_tooltip">Formation submitted</message>
 	<message id="formation_notsubmitted_tooltip">No formation submitted yet</message>
+
+    <message id="formation_apply_to">Apply to</message>
 </messages>
