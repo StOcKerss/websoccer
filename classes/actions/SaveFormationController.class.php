@@ -60,55 +60,60 @@ class SaveFormationController implements IActionController {
 		if (!count($nextMatches)) {
 			throw new Exception($this->_i18n->getMessage('formation_err_nonextmatch'));
 		}
-		
-		// currently selected match
-		$matchId = $parameters['id'];
-		foreach ($nextMatches as $nextMatch) {
-			if ($nextMatch['match_id'] == $matchId) {
-				$matchinfo = $nextMatch;
-				break;
-			}
-		}
-		if (!isset($matchinfo)) {
-			throw new Exception('illegal match id');
-		}
-		
-		// get team players and check whether provided IDs are valid players (in team and not blocked)
-		$players = PlayersDataService::getPlayersOfTeamById($this->_websoccer, $this->_db, $teamId, $this->_isNationalTeam, $matchinfo['match_type'] == 'cup', $matchinfo['match_type'] != 'friendly');
-		$this->validatePlayer($parameters['player1'], $players);
-		$this->validatePlayer($parameters['player2'], $players);
-		$this->validatePlayer($parameters['player3'], $players);
-		$this->validatePlayer($parameters['player4'], $players);
-		$this->validatePlayer($parameters['player5'], $players);
-		$this->validatePlayer($parameters['player6'], $players);
-		$this->validatePlayer($parameters['player7'], $players);
-		$this->validatePlayer($parameters['player8'], $players);
-		$this->validatePlayer($parameters['player9'], $players);
-		$this->validatePlayer($parameters['player10'], $players);
-		$this->validatePlayer($parameters['player11'], $players);
-		
-		$this->validatePlayer($parameters['bench1'], $players, TRUE);
-		$this->validatePlayer($parameters['bench2'], $players, TRUE);
-		$this->validatePlayer($parameters['bench3'], $players, TRUE);
-		$this->validatePlayer($parameters['bench4'], $players, TRUE);
-		$this->validatePlayer($parameters['bench5'], $players, TRUE);
-		
-		// validate substitutions
-		$validSubstitutions = array();
-		for ($subNo = 1; $subNo <= 3; $subNo++) {
-			$playerIn = $parameters['sub' . $subNo .'_in'];
-			$playerOut = $parameters['sub' . $subNo .'_out'];
-			$playerMinute = $parameters['sub' . $subNo .'_minute'];
-			if ($playerIn != null && $playerIn > 0 && $playerOut != null && $playerOut > 0 && $playerMinute != null && $playerMinute > 0) {
-				$this->validateSubstitution($playerIn, $playerOut, $playerMinute, $players);
-				$validSubstitutions[] = $subNo;
-			}
-		}
-		
-		// save formation
-		$this->saveFormation($teamId, $matchinfo['match_id'], $parameters, $validSubstitutions);
-		
-		// create success message
+
+        // selected matches
+        if (count($parameters['matches'])) {
+            $matches = [];
+            foreach ($nextMatches as $nextMatch) {
+                if (in_array($nextMatch['match_id'], $parameters['matches']))
+                    $matches[] = $nextMatch;
+            }
+        } else {
+            throw new Exception('illegal match id');
+        }
+        foreach ($matches as $matchinfo) {
+
+            if (!isset($matchinfo)) {
+                throw new Exception('illegal match id');
+            }
+
+            // get team players and check whether provided IDs are valid players (in team and not blocked)
+            $players = PlayersDataService::getPlayersOfTeamById($this->_websoccer, $this->_db, $teamId, $this->_isNationalTeam, $matchinfo['match_type'] == 'cup', $matchinfo['match_type'] != 'friendly');
+            $this->validatePlayer($parameters['player1'], $players);
+            $this->validatePlayer($parameters['player2'], $players);
+            $this->validatePlayer($parameters['player3'], $players);
+            $this->validatePlayer($parameters['player4'], $players);
+            $this->validatePlayer($parameters['player5'], $players);
+            $this->validatePlayer($parameters['player6'], $players);
+            $this->validatePlayer($parameters['player7'], $players);
+            $this->validatePlayer($parameters['player8'], $players);
+            $this->validatePlayer($parameters['player9'], $players);
+            $this->validatePlayer($parameters['player10'], $players);
+            $this->validatePlayer($parameters['player11'], $players);
+
+            $this->validatePlayer($parameters['bench1'], $players, TRUE);
+            $this->validatePlayer($parameters['bench2'], $players, TRUE);
+            $this->validatePlayer($parameters['bench3'], $players, TRUE);
+            $this->validatePlayer($parameters['bench4'], $players, TRUE);
+            $this->validatePlayer($parameters['bench5'], $players, TRUE);
+
+            // validate substitutions
+            $validSubstitutions = array();
+            for ($subNo = 1; $subNo <= 3; $subNo++) {
+                $playerIn = $parameters['sub' . $subNo . '_in'];
+                $playerOut = $parameters['sub' . $subNo . '_out'];
+                $playerMinute = $parameters['sub' . $subNo . '_minute'];
+                if ($playerIn != null && $playerIn > 0 && $playerOut != null && $playerOut > 0 && $playerMinute != null && $playerMinute > 0) {
+                    $this->validateSubstitution($playerIn, $playerOut, $playerMinute, $players);
+                    $validSubstitutions[] = $subNo;
+                }
+            }
+
+            // save formation
+            $this->saveFormation($teamId, $matchinfo['match_id'], $parameters, $validSubstitutions);
+            $this->_addedPlayers = array();
+        }
+        // create success message
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,
 				$this->_i18n->getMessage('saved_message_title'),
 				''));
